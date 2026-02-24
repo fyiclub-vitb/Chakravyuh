@@ -155,23 +155,26 @@ const Register = () => {
 
         setLoading(true)
         try {
-            const res = await axios.post('/register', {
-                agentId: form.agentId,
-                name:    form.name.trim(),
-                email:   form.email.trim(),
+            const res = await axios.post('/api/auth/register', {
+                userId: form.agentId,
+                name:   form.name.trim(),
+                email:  form.email.trim(),
             })
 
-            if (res.status === 201) {
-                setSuccess({ isNew: true,  agentName: form.name.trim() })
-            } else if (res.status === 200) {
-                setSuccess({ isNew: false, agentName: form.name.trim() })
+            if (res.data.success) {
+                // Store user data in localStorage
+                localStorage.setItem('userData', JSON.stringify(res.data.data))
+                localStorage.setItem('userId', res.data.data.userId)
+                
+                // Redirect directly to Mumbai Backstory
+                navigate('/mumbai/backstory')
             } else {
-                console.error('Unexpected response:', res)
-                setToast({ message: 'Some error occurred. Please try again.' })
+                setToast({ message: res.data.message || 'Registration failed. Please try again.' })
             }
         } catch (err) {
             console.error('Registration error:', err)
-            setToast({ message: 'Some error occurred. Please try again.' })
+            const errorMsg = err.response?.data?.message || 'Connection error. Please check if backend is running.'
+            setToast({ message: errorMsg })
         } finally {
             setLoading(false)
         }
