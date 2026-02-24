@@ -188,8 +188,8 @@ const Home = () => {
                 <p className="font-mono text-green-600 text-sm text-center leading-relaxed max-w-lg">
                     Intelligence reports a coordinated terror plot spanning{' '}
                     <span className="text-red-500 font-semibold">6 cities across India</span>.
-                    Agents are needed in the field to gather intel, collect evidence, and neutralize the threat
-                    before it's too late.
+                    Agents are needed in the field to gather intel, collect evidence, and find out the correct location, time and type of attack.
+                    
                 </p>
 
                 {/* Red CTA button */}
