@@ -103,6 +103,29 @@ const Jammu = () => {
     }, [])
 
     useEffect(() => {
+        const handleTimeOut = async () => {
+            if (timeRemaining === 0) {
+                try {
+                    const userData = JSON.parse(localStorage.getItem('userData') || '{}')
+                    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+                    
+                    await axios.post(`${apiUrl}/game/disqualify`, {
+                        userId: userData.userId
+                    })
+                    
+                    userData.isDisqualified = true
+                    localStorage.setItem('userData', JSON.stringify(userData))
+                    
+                    navigate('/disqualify')
+                } catch (error) {
+                    console.error('Error disqualifying user:', error)
+                }
+            }
+        }
+        handleTimeOut()
+    }, [timeRemaining, navigate])
+
+    useEffect(() => {
         let currentIndex = 0
         const timers = []
 
