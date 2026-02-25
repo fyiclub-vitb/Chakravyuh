@@ -54,16 +54,16 @@ const userSchema = new mongoose.Schema({
         default: ""
     },
     date: {
-        type: Date,
-        default: null
+        type: String,
+        default: ""
     },
     time: {
         type: String,
         default: ""
     },
     places: {
-        type: Number,
-        default: 0
+        type: String,
+        default: ""
     },
     isSubmitted: {
         type: Boolean,

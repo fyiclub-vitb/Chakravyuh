@@ -97,4 +97,55 @@ router.post('/disqualify', async (req, res) => {
     }
 });
 
+
+// Submit final answers
+
+router.post('/submit-answers', async (req, res) => {
+    try {
+        const { userId, city, date, time, places } = req.body;
+        if (!userId || !city || !date || !time || !places) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields (userId, city, date, time, places) are required'
+            });
+        }
+        const user = await User.findOne({ userId });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+        user.city = city;
+        user.date = date;
+        user.time = time;
+        user.places = places;
+        user.isSubmitted = true;
+        user.submitAt = new Date();
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Final answers submitted successfully',
+            data: {
+                userId: user.userId,
+                city: user.city,
+                date: user.date,
+                time: user.time,
+                places: user.places,
+                isSubmitted: user.isSubmitted,
+                submitAt: user.submitAt
+            }
+        });
+    } catch (error) {
+        console.error('Error submitting answers:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while submitting answers',
+            error: error.message
+        });
+    }
+});
+
+
 module.exports = router;

@@ -12,6 +12,13 @@ const Mumbai = () => {
     useEffect(() => {
         // Get user data from localStorage
         const userData = JSON.parse(localStorage.getItem('userData') || '{}')
+        
+        // Check if user is disqualified
+        if (userData.isDisqualified === true) {
+            navigate('/disqualify')
+            return
+        }
+        
         const timeStart = userData.timeStart ? new Date(userData.timeStart) : new Date()
 
         // Calculate time remaining (90 minutes total)
