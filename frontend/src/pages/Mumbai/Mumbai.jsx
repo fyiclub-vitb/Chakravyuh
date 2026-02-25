@@ -126,17 +126,18 @@ const Mumbai = () => {
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-black">
             {/* Game Section - 80% */}
-            <div className="w-4/5 h-full">
+            <div className="w-[80%] h-full overflow-hidden">
                 <iframe
                     src="/Mumbai_game/index.html"
                     className="w-full h-full border-none"
                     title="Mumbai Game"
+                    scrolling="no"
+                    style={{ overflow: 'hidden' }}
                 />
             </div>
 
-
             {/* Side Panel - 20% */}
-            <div className="w-1/5 h-full bg-[#0b0f1a] text-white flex flex-col border-l border-gray-800 overflow-y-auto">
+            <div className="w-[20%] h-full bg-[#0b0f1a] text-white flex flex-col border-l border-gray-800 overflow-y-auto">
 
                 {/* ===== TIMER ===== */}
                 <div className="px-6 py-6 border-b border-gray-800 bg-black">

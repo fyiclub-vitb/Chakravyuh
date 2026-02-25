@@ -103,11 +103,11 @@ const Bangalore = () => {
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-black">
-            <div className="w-4/5 h-full">
-                <iframe src="/Banglore_game/index.html" className="w-full h-full border-none" title="Bangalore Game" />
+            <div className="w-[80%] h-full overflow-hidden">
+                <iframe src="/Banglore_game/index.html" className="w-full h-full border-none" title="Bangalore Game" scrolling="no" style={{ overflow: 'hidden' }} />
             </div>
 
-            <div className="w-1/5 h-full bg-[#0b0f1a] text-white flex flex-col border-l border-gray-800 overflow-y-auto">
+            <div className="w-[20%] h-full bg-[#0b0f1a] text-white flex flex-col border-l border-gray-800 overflow-y-auto">
                 <div className="px-6 py-6 border-b border-gray-800 bg-black">
                     <p className="text-[11px] tracking-widest text-red-400 font-semibold mb-2">MISSION TIMER</p>
                     <div className={`text-4xl font-mono font-bold ${timeRemaining < 600 ? "text-red-500 animate-pulse" : "text-green-400"}`}>
