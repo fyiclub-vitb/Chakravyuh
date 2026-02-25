@@ -128,7 +128,7 @@ const Mumbai = () => {
             {/* Game Section - 80% */}
             <div className="w-4/5 h-full">
                 <iframe
-                    src="/game/index.html"
+                    src="/Mumbai_game/index.html"
                     className="w-full h-full border-none"
                     title="Mumbai Game"
                 />

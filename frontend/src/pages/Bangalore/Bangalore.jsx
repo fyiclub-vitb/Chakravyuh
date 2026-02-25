@@ -104,7 +104,7 @@ const Bangalore = () => {
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-black">
             <div className="w-4/5 h-full">
-                <iframe src="/game/index.html" className="w-full h-full border-none" title="Bangalore Game" />
+                <iframe src="/Banglore_game/index.html" className="w-full h-full border-none" title="Bangalore Game" />
             </div>
 
             <div className="w-1/5 h-full bg-[#0b0f1a] text-white flex flex-col border-l border-gray-800 overflow-y-auto">
