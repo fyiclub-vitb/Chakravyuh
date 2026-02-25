@@ -69,6 +69,7 @@ const Jammu = () => {
     const [message, setMessage] = useState('')
     const [timeRemaining, setTimeRemaining] = useState(0)
     const [isProcessing, setIsProcessing] = useState(false)
+    const [timerInitialized, setTimerInitialized] = useState(false)
     const logContainerRef = useRef(null)
     const navigate = useNavigate()
 
@@ -93,6 +94,7 @@ const Jammu = () => {
         }
 
         setTimeRemaining(calculateTimeRemaining())
+        setTimerInitialized(true)
         const interval = setInterval(() => {
             const remaining = calculateTimeRemaining()
             setTimeRemaining(remaining)
@@ -104,7 +106,7 @@ const Jammu = () => {
 
     useEffect(() => {
         const handleTimeOut = async () => {
-            if (timeRemaining === 0) {
+            if (timerInitialized && timeRemaining === 0) {
                 try {
                     const userData = JSON.parse(localStorage.getItem('userData') || '{}')
                     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
@@ -123,7 +125,7 @@ const Jammu = () => {
             }
         }
         handleTimeOut()
-    }, [timeRemaining, navigate])
+    }, [timeRemaining, timerInitialized, navigate])
 
     useEffect(() => {
         let currentIndex = 0
@@ -253,13 +255,6 @@ const Jammu = () => {
                         <div className={`h-full transition-all duration-1000 ${timeRemaining < 600 ? "bg-red-500" : "bg-green-500"}`}
                             style={{ width: `${(timeRemaining / (90 * 60)) * 100}%` }} />
                     </div>
-                </div>
-
-                <div className="px-6 py-6 border-b border-gray-800">
-                    <p className="text-[11px] tracking-widest text-blue-400 font-semibold mb-3">MISSION BRIEF</p>
-                    <p className="text-sm text-gray-300 leading-relaxed">
-                        Analyze the intercepted transmission logs and determine if this is the <span className="text-yellow-400 font-semibold">primary attack operation</span> you are investigating.
-                    </p>
                 </div>
 
                 <div className="px-6 py-6 border-b border-gray-800">

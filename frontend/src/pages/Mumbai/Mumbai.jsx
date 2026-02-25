@@ -6,6 +6,7 @@ const Mumbai = () => {
     const [code, setCode] = useState(['', '', ''])
     const [message, setMessage] = useState('')
     const [timeRemaining, setTimeRemaining] = useState(0)
+    const [timerInitialized, setTimerInitialized] = useState(false)
     const inputRefs = [useRef(null), useRef(null), useRef(null)]
     const navigate = useNavigate()
 
@@ -36,6 +37,7 @@ const Mumbai = () => {
 
         // Set initial time
         setTimeRemaining(calculateTimeRemaining())
+        setTimerInitialized(true)
 
         // Update timer every second
         const interval = setInterval(() => {
@@ -52,7 +54,7 @@ const Mumbai = () => {
 
     useEffect(() => {
         const handleTimeOut = async () => {
-            if (timeRemaining === 0) {
+            if (timerInitialized && timeRemaining === 0) {
                 try {
                     const userData = JSON.parse(localStorage.getItem('userData') || '{}')
                     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
@@ -71,7 +73,7 @@ const Mumbai = () => {
             }
         }
         handleTimeOut()
-    }, [timeRemaining, navigate])
+    }, [timeRemaining, timerInitialized, navigate])
 
     const formatTime = (seconds) => {
         if (seconds <= 0) return '00:00:00'
@@ -187,23 +189,6 @@ const Mumbai = () => {
                             style={{ width: `${(timeRemaining / (90 * 60)) * 100}%` }}
                         />
                     </div>
-                </div>
-
-                {/* ===== MISSION BRIEF ===== */}
-                <div className="px-6 py-6 border-b border-gray-800">
-                    <p className="text-[11px] tracking-widest text-blue-400 font-semibold mb-3">
-                        MISSION BRIEF
-                    </p>
-
-                    <p className="text-sm text-gray-300 leading-relaxed">
-                        Gather intelligence and determine the
-                        <span className="text-yellow-400 font-semibold"> City</span>,
-                        <span className="text-yellow-400 font-semibold"> Time</span>,
-                        <span className="text-yellow-400 font-semibold"> Date</span>,
-                        and
-                        <span className="text-yellow-400 font-semibold"> Nodes</span>
-                        of the planned attack.
-                    </p>
                 </div>
 
                 {/* ===== CURRENT TASK ===== */}

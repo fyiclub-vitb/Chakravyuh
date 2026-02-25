@@ -15,6 +15,7 @@ const Delhi = () => {
     const [terminalLines, setTerminalLines] = useState([])
     const [showCompletion, setShowCompletion] = useState(false)
     const [showFYILogo, setShowFYILogo] = useState(false)
+    const [timerInitialized, setTimerInitialized] = useState(false)
     const navigate = useNavigate()
 
     const allTerminalLines = [
@@ -56,6 +57,7 @@ const Delhi = () => {
         }
 
         setTimeRemaining(calculateTimeRemaining())
+        setTimerInitialized(true)
         const interval = setInterval(() => {
             const remaining = calculateTimeRemaining()
             setTimeRemaining(remaining)
@@ -67,7 +69,7 @@ const Delhi = () => {
 
     useEffect(() => {
         const handleTimeOut = async () => {
-            if (timeRemaining === 0) {
+            if (timerInitialized && timeRemaining === 0) {
                 try {
                     const userData = JSON.parse(localStorage.getItem('userData') || '{}')
                     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
@@ -86,7 +88,7 @@ const Delhi = () => {
             }
         }
         handleTimeOut()
-    }, [timeRemaining, navigate])
+    }, [timeRemaining, timerInitialized, navigate])
 
     useEffect(() => {
         if (!showTerminal || terminalLines.length >= allTerminalLines.length) return

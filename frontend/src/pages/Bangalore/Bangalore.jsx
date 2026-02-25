@@ -4,12 +4,13 @@ import axios from 'axios'
 import bangaloreEndImage from '../../assets/Bangalore_ending.png'
 
 const Bangalore = () => {
-    const [code, setCode] = useState(['', '', ''])
+    const [code, setCode] = useState(['', '', '', ''])
     const [message, setMessage] = useState('')
     const [timeRemaining, setTimeRemaining] = useState(0)
     const [showEndScreen, setShowEndScreen] = useState(false)
     const [showNextButton, setShowNextButton] = useState(false)
-    const inputRefs = [useRef(null), useRef(null), useRef(null)]
+    const [timerInitialized, setTimerInitialized] = useState(false)
+    const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)]
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -34,6 +35,7 @@ const Bangalore = () => {
         }
 
         setTimeRemaining(calculateTimeRemaining())
+        setTimerInitialized(true)
 
         const interval = setInterval(() => {
             const remaining = calculateTimeRemaining()
@@ -46,7 +48,7 @@ const Bangalore = () => {
 
     useEffect(() => {
         const handleTimeOut = async () => {
-            if (timeRemaining === 0) {
+            if (timerInitialized && timeRemaining === 0) {
                 try {
                     const userData = JSON.parse(localStorage.getItem('userData') || '{}')
                     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
@@ -65,7 +67,7 @@ const Bangalore = () => {
             }
         }
         handleTimeOut()
-    }, [timeRemaining, navigate])
+    }, [timeRemaining, timerInitialized, navigate])
 
     const formatTime = (seconds) => {
         if (seconds <= 0) return '00:00:00'
@@ -92,7 +94,7 @@ const Bangalore = () => {
         } else {
             setMessage('Incorrect Passcode')
             setTimeout(() => setMessage(''), 3000)
-            setCode(['', '', ''])
+            setCode(['', '', '', ''])
             inputRefs[0].current?.focus()
         }
     }
@@ -122,7 +124,7 @@ const Bangalore = () => {
         const newCode = [...code]
         newCode[index] = value.toUpperCase()
         setCode(newCode)
-        if (value && index < 2) inputRefs[index + 1].current?.focus()
+        if (value && index < 3) inputRefs[index + 1].current?.focus()
     }
 
     const handleKeyDown = (index, e) => {
@@ -150,18 +152,9 @@ const Bangalore = () => {
                 </div>
 
                 <div className="px-6 py-6 border-b border-gray-800">
-                    <p className="text-[11px] tracking-widest text-blue-400 font-semibold mb-3">MISSION BRIEF</p>
-                    <p className="text-sm text-gray-300 leading-relaxed">
-                        Gather intelligence and determine the <span className="text-yellow-400 font-semibold">City</span>,
-                        <span className="text-yellow-400 font-semibold"> Time</span>, <span className="text-yellow-400 font-semibold">Date</span>,
-                        and <span className="text-yellow-400 font-semibold">Nodes</span> of the planned attack.
-                    </p>
-                </div>
-
-                <div className="px-6 py-6 border-b border-gray-800">
                     <p className="text-[11px] tracking-widest text-purple-400 font-semibold mb-3">CURRENT TASK</p>
                     <div className="bg-[#121826] p-4 rounded-lg border border-purple-500/30">
-                        <p className="text-base font-semibold text-white">Locate 3-Letter Access Code</p>
+                        <p className="text-base font-semibold text-white">Find 4-Letter Access Code</p>
                         <p className="text-xs text-gray-400 mt-1">Search the environment carefully. Clues are embedded.</p>
                     </div>
                 </div>
@@ -169,12 +162,12 @@ const Bangalore = () => {
                 <div className="px-6 py-6 mt-auto bg-[#0b0f1a] border-t border-gray-800">
                     <div className="flex items-center justify-between mb-5">
                         <p className="text-[11px] tracking-widest text-cyan-400 font-semibold">ENTER PASSCODE</p>
-                        <span className="text-[10px] text-gray-500 tracking-widest">3-LETTER ACCESS</span>
+                        <span className="text-[10px] text-gray-500 tracking-widest">4-LETTER ACCESS</span>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div className="flex justify-center gap-4">
-                            {[0, 1, 2].map((i) => (
+                            {[0, 1, 2, 3].map((i) => (
                                 <input key={i} ref={inputRefs[i]} type="text" inputMode="text" maxLength={1}
                                     value={code[i]} onChange={(e) => handleDigitChange(i, e.target.value)}
                                     onKeyDown={(e) => handleKeyDown(i, e)}
@@ -183,7 +176,7 @@ const Bangalore = () => {
                             ))}
                         </div>
 
-                        <button type="submit" disabled={code.filter(d => d !== '').length !== 3}
+                        <button type="submit" disabled={code.filter(d => d !== '').length !== 4}
                             className="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 rounded-lg font-semibold tracking-wide transition disabled:opacity-40 disabled:cursor-not-allowed">
                             VERIFY CODE
                         </button>

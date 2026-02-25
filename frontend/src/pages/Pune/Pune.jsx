@@ -12,6 +12,7 @@ const Pune = () => {
     })
     const [message, setMessage] = useState('')
     const [timeRemaining, setTimeRemaining] = useState(0)
+    const [timerInitialized, setTimerInitialized] = useState(false)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -35,6 +36,7 @@ const Pune = () => {
         }
 
         setTimeRemaining(calculateTimeRemaining())
+        setTimerInitialized(true)
         const interval = setInterval(() => {
             const remaining = calculateTimeRemaining()
             setTimeRemaining(remaining)
@@ -46,7 +48,7 @@ const Pune = () => {
 
     useEffect(() => {
         const handleTimeOut = async () => {
-            if (timeRemaining === 0) {
+            if (timerInitialized && timeRemaining === 0) {
                 try {
                     const userData = JSON.parse(localStorage.getItem('userData') || '{}')
                     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
@@ -65,7 +67,7 @@ const Pune = () => {
             }
         }
         handleTimeOut()
-    }, [timeRemaining, navigate])
+    }, [timeRemaining, timerInitialized, navigate])
 
     const formatTime = (seconds) => {
         if (seconds <= 0) return '00:00:00'
@@ -84,9 +86,9 @@ const Pune = () => {
         const correctDelayOffset = import.meta.env.VITE_PUNE_DELAY_OFFSET
 
         if (
-            formData.deviceId.trim() === correctDeviceId &&
+            formData.deviceId.trim().toLowerCase() === correctDeviceId.toLowerCase() &&
             formData.frequencyBand.trim() === correctFrequencyBand &&
-            formData.signalStrength.trim() === correctSignalStrength &&
+            formData.signalStrength.trim().toLowerCase() === correctSignalStrength.toLowerCase() &&
             formData.delayOffset.trim() === correctDelayOffset
         ) {
             setMessage('✓ FULL SYNCHRONISATION ACHIEVED')
@@ -121,7 +123,7 @@ const Pune = () => {
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-black">
             <div className="w-4/5 h-full flex items-center justify-center bg-gray-900">
-                <img src={puneReportImage} alt="Device Synchronisation Report" className="max-w-full max-h-full object-contain" />
+                <img src={puneReportImage} alt="Device Synchronisation Report" className="h-full w-auto object-contain" />
             </div>
 
             <div className="w-1/5 h-full bg-[#0b0f1a] text-white flex flex-col border-l border-gray-800 overflow-y-auto">
@@ -134,13 +136,6 @@ const Pune = () => {
                         <div className={`h-full transition-all duration-1000 ${timeRemaining < 600 ? "bg-red-500" : "bg-green-500"}`}
                             style={{ width: `${(timeRemaining / (90 * 60)) * 100}%` }} />
                     </div>
-                </div>
-
-                <div className="px-6 py-6 border-b border-gray-800">
-                    <p className="text-[11px] tracking-widest text-blue-400 font-semibold mb-3">MISSION BRIEF</p>
-                    <p className="text-sm text-gray-300 leading-relaxed">
-                        Analyze the technical report and extract the <span className="text-yellow-400 font-semibold">synchronisation parameters</span> to proceed.
-                    </p>
                 </div>
 
                 <div className="px-6 py-6 border-b border-gray-800">

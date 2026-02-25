@@ -6,6 +6,7 @@ const Chennai = () => {
     const [ngoName, setNgoName] = useState('')
     const [message, setMessage] = useState('')
     const [timeRemaining, setTimeRemaining] = useState(0)
+    const [timerInitialized, setTimerInitialized] = useState(false)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -29,6 +30,7 @@ const Chennai = () => {
         }
 
         setTimeRemaining(calculateTimeRemaining())
+        setTimerInitialized(true)
         const interval = setInterval(() => {
             const remaining = calculateTimeRemaining()
             setTimeRemaining(remaining)
@@ -40,7 +42,7 @@ const Chennai = () => {
 
     useEffect(() => {
         const handleTimeOut = async () => {
-            if (timeRemaining === 0) {
+            if (timerInitialized && timeRemaining === 0) {
                 try {
                     const userData = JSON.parse(localStorage.getItem('userData') || '{}')
                     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
@@ -59,7 +61,7 @@ const Chennai = () => {
             }
         }
         handleTimeOut()
-    }, [timeRemaining, navigate])
+    }, [timeRemaining, timerInitialized, navigate])
 
     const formatTime = (seconds) => {
         if (seconds <= 0) return '00:00:00'
@@ -213,13 +215,6 @@ const Chennai = () => {
                         <div className={`h-full transition-all duration-1000 ${timeRemaining < 600 ? "bg-red-500" : "bg-green-500"}`}
                             style={{ width: `${(timeRemaining / (90 * 60)) * 100}%` }} />
                     </div>
-                </div>
-
-                <div className="px-6 py-6 border-b border-gray-800">
-                    <p className="text-[11px] tracking-widest text-blue-400 font-semibold mb-3">MISSION BRIEF</p>
-                    <p className="text-sm text-gray-300 leading-relaxed">
-                        Investigate recovered documents to identify the <span className="text-yellow-400 font-semibold">primary financial cover entity</span> supporting the operation.
-                    </p>
                 </div>
 
                 <div className="px-6 py-6 border-b border-gray-800">
