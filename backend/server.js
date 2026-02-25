@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
+const gameRoutes = require('./routes/game');
 dotenv.config();
 const app = express();
 app.use(cors());
@@ -11,6 +12,7 @@ connectDB();
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/game', gameRoutes);
 
 app.get('/', (req, res) => {
     res.send('Backend Running');
