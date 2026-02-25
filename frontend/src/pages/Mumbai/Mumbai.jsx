@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
 
 const Mumbai = () => {
     const [code, setCode] = useState(['', '', ''])
     const [message, setMessage] = useState('')
     const [timeRemaining, setTimeRemaining] = useState(0)
     const inputRefs = [useRef(null), useRef(null), useRef(null)]
+    const navigate = useNavigate()
 
     useEffect(() => {
         // Get user data from localStorage
@@ -50,7 +53,7 @@ const Mumbai = () => {
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
 
         const correctPasscode = import.meta.env.VITE_MUMBAI_PASSCODE
@@ -58,8 +61,38 @@ const Mumbai = () => {
 
         if (enteredCode === correctPasscode) {
             setMessage('Correct! Proceeding...')
-            // TODO: API call to update progress will be integrated later
-            console.log('Correct passcode entered!')
+            
+            try {
+                // Get user data from localStorage
+                const userData = JSON.parse(localStorage.getItem('userData') || '{}')
+                const userId = userData.userId
+
+                if (!userId) {
+                    setMessage('User not found. Please register first.')
+                    setTimeout(() => setMessage(''), 3000)
+                    return
+                }
+
+                // Make API call to update progress
+                const apiUrl = import.meta.env.VITE_API_URL;
+                const response = await axios.post(`${apiUrl}/game/update-progress`, {
+                    userId: userId,
+                    city: 'Mumbai'
+                })
+
+                if (response.data.success) {
+                    console.log('Progress updated successfully:', response.data)
+                    
+                    // Redirect to Bangalore backstory after a short delay
+                    setTimeout(() => {
+                        navigate('/bangalore/backstory')
+                    }, 1500)
+                }
+            } catch (error) {
+                console.error('Error updating progress:', error)
+                setMessage('Error updating progress. Please try again.')
+                setTimeout(() => setMessage(''), 3000)
+            }
         } else {
             setMessage('Incorrect Passcode')
             setTimeout(() => setMessage(''), 3000)
