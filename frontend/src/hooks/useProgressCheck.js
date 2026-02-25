@@ -11,8 +11,8 @@ export const useProgressCheck = () => {
     useEffect(() => {
         const checkProgress = async () => {
             try {
-                // Skip check for home and register pages
-                if (location.pathname === '/' || location.pathname === '/register') {
+                // Skip check for home, register, and disqualify pages
+                if (location.pathname === '/' || location.pathname === '/register' || location.pathname === '/disqualify') {
                     setIsChecking(false)
                     return
                 }
@@ -38,6 +38,13 @@ export const useProgressCheck = () => {
 
                     // Update localStorage with latest progress
                     localStorage.setItem('userData', JSON.stringify(latestUserData))
+
+                    // Check if user is disqualified
+                    if (latestUserData.isDisqualified) {
+                        navigate('/disqualify', { replace: true })
+                        setIsChecking(false)
+                        return
+                    }
 
                     // Get next city to visit
                     const nextCity = getNextCity(latestUserData.cityProgress)

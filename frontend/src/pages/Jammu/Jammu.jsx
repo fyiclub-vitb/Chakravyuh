@@ -147,6 +147,9 @@ const Jammu = () => {
                 userId: userData.userId
             })
             
+            if (response.data.success) {
+                setTimeout(() => navigate('/disqualify'), 1500)
+            }
         } catch (error) {
             console.error('Error:', error)
             setMessage('Error processing request')

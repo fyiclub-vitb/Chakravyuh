@@ -14,6 +14,7 @@ import JammuBackstory from './pages/Jammu/JammuBackstory'
 import Jammu from './pages/Jammu/Jammu'
 import DelhiBackstory from './pages/Delhi/DelhiBackstory'
 import Delhi from './pages/Delhi/Delhi'
+import Disqualify from './pages/Disqualify'
 import ProgressGuard from './components/ProgressGuard'
 
 const App = () => {
@@ -23,6 +24,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/disqualify" element={<Disqualify />} />
           
           <Route path="/mumbai/backstory" element={<MumbaiBackstory />} />
           <Route path="/mumbai/game" element={<Mumbai />} />
