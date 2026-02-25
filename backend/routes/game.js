@@ -57,4 +57,44 @@ router.post('/update-progress', async (req, res) => {
     }
 });
 
+
+// Disqualify user
+router.post('/disqualify', async (req, res) => {
+    try {
+        const { userId } = req.body;
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: 'UserId is required'
+            });
+        }
+        const user = await User.findOne({ userId });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+        user.isDisqualified = true;
+        user.isSubmitted = true;
+        user.submitAt = new Date();
+        await user.save();
+        res.status(200).json({
+            success: true,
+            message: 'User disqualified successfully',
+            data: {
+                userId: user.userId,
+                isDisqualified: user.isDisqualified
+            }
+        });
+    } catch (error) {
+        console.error('Error disqualifying user:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while disqualifying user',
+            error: error.message
+        });
+    }
+});
+
 module.exports = router;
