@@ -72,51 +72,102 @@ const Chennai = () => {
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-black">
-            <div className="w-4/5 h-full flex items-center justify-center bg-gradient-to-br from-gray-900 via-slate-900 to-black p-12">
-                <div className="max-w-4xl text-white space-y-8">
-                    <div className="border-l-4 border-cyan-500 pl-6">
-                        <h1 className="text-4xl font-bold text-cyan-400 mb-2">Southern Region Intelligence Cluster</h1>
+            <div className="w-4/5 h-full relative bg-gradient-to-br from-gray-950 via-neutral-950 to-black p-12 overflow-auto">
+                {/* Grid pattern overlay */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(75,85,99,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(75,85,99,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+                
+                {/* Subtle radial glow */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gray-700/3 rounded-full blur-[120px]"></div>
+                
+                <div className="relative max-w-5xl mx-auto text-white space-y-10">
+                    {/* Header Section */}
+                    <div className="bg-gradient-to-r from-gray-950/95 to-neutral-900/95 backdrop-blur-sm border border-gray-800/60 rounded-xl p-8 shadow-2xl">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="w-1 h-16 bg-gradient-to-b from-gray-600 to-gray-800 rounded-full"></div>
+                            <div>
+                                <p className="text-xs tracking-[0.3em] text-gray-500 font-semibold mb-2 uppercase">Intelligence Report</p>
+                                <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-300 to-gray-500 bg-clip-text text-transparent">
+                                    Southern Region Intelligence Cluster
+                                </h1>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div className="space-y-4 text-lg leading-relaxed">
-                        <p className="text-gray-300">
-                            Logistics requires funding.<br />
-                            Funding leaves trails.
-                        </p>
+                    {/* Main Content */}
+                    <div className="grid gap-6">
+                        {/* Key Points */}
+                        <div className="bg-neutral-950/70 backdrop-blur-sm border border-gray-800/40 rounded-xl p-8 shadow-xl">
+                            <div className="space-y-5 text-base leading-relaxed">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-2 h-2 bg-gray-600 rounded-full mt-2 flex-shrink-0"></div>
+                                    <p className="text-gray-300">
+                                        <span className="font-semibold text-gray-200">Logistics requires funding.</span><br />
+                                        <span className="text-gray-500">Funding leaves trails.</span>
+                                    </p>
+                                </div>
+                                
+                                <div className="flex items-start gap-4">
+                                    <div className="w-2 h-2 bg-gray-600 rounded-full mt-2 flex-shrink-0"></div>
+                                    <p className="text-gray-300">
+                                        A cluster of charitable transfers has been flagged across the southern region.
+                                    </p>
+                                </div>
+                                
+                                <div className="flex items-start gap-4">
+                                    <div className="w-2 h-2 bg-gray-600 rounded-full mt-2 flex-shrink-0"></div>
+                                    <p className="text-gray-300">
+                                        <span className="font-semibold text-gray-200">Individually compliant.</span><br />
+                                        <span className="text-gray-500">Structurally aligned.</span>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-6 pt-6 border-t border-gray-800/40">
+                                <div className="bg-gradient-to-r from-amber-950/20 to-yellow-950/20 border border-amber-900/30 rounded-lg p-4">
+                                    <p className="text-amber-600 font-semibold flex items-center gap-2">
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        </svg>
+                                        Financial routing may conceal operational assets.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         
-                        <p className="text-gray-300">
-                            A cluster of charitable transfers has been flagged across the southern region.
-                        </p>
-                        
-                        <p className="text-gray-300">
-                            Individually compliant.<br />
-                            Structurally aligned.
-                        </p>
-                        
-                        <p className="text-yellow-300 font-semibold">
-                            Financial routing may conceal operational assets.
-                        </p>
-                        
-                        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6 mt-8">
-                            <p className="text-cyan-400 font-semibold mb-3">Multiple documents recovered:</p>
-                            <ul className="space-y-2 text-gray-300">
-                                <li className="flex items-center">
-                                    <span className="text-cyan-500 mr-3">–</span> Financial Ledger
-                                </li>
-                                <li className="flex items-center">
-                                    <span className="text-cyan-500 mr-3">–</span> Vendor Supply Summary
-                                </li>
-                                <li className="flex items-center">
-                                    <span className="text-cyan-500 mr-3">–</span> Internal Email Extracts
-                                </li>
+                        {/* Documents Section */}
+                        <div className="bg-gradient-to-br from-neutral-950/90 to-gray-950/90 backdrop-blur-sm border border-gray-800/40 rounded-xl p-8 shadow-xl">
+                            <div className="flex items-center gap-3 mb-5">
+                                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <p className="text-lg font-bold text-gray-400">Documents Recovered</p>
+                            </div>
+                            <ul className="space-y-3">
+                                {['Financial Ledger', 'Vendor Supply Summary', 'Internal Email Extracts'].map((doc, idx) => (
+                                    <li key={idx} className="flex items-center gap-3 bg-neutral-900/50 border border-gray-800/30 rounded-lg px-4 py-3 hover:border-gray-700/50 transition-colors">
+                                        <div className="w-8 h-8 bg-gray-800/50 rounded-lg flex items-center justify-center text-gray-500 font-mono text-sm">
+                                            {idx + 1}
+                                        </div>
+                                        <span className="text-gray-300">{doc}</span>
+                                    </li>
+                                ))}
                             </ul>
                         </div>
                         
-                        <div className="bg-red-900/20 border border-red-700 rounded-lg p-6 mt-6">
-                            <p className="text-red-400 font-semibold">
-                                Correlate across sources.<br />
-                                Do not rely on a single document.
-                            </p>
+                        {/* Warning Box */}
+                        <div className="bg-gradient-to-br from-red-950/30 to-red-900/30 backdrop-blur-sm border border-red-950/50 rounded-xl p-6 shadow-xl">
+                            <div className="flex items-start gap-4">
+                                <svg className="w-6 h-6 text-red-700 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                                <div>
+                                    <p className="text-red-700 font-bold mb-2 uppercase text-sm tracking-wider">Critical Advisory</p>
+                                    <p className="text-red-800/90 leading-relaxed">
+                                        Correlate across sources.<br />
+                                        Do not rely on a single document.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
