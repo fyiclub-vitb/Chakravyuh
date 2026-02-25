@@ -8,7 +8,18 @@ const ChennaiBackstory = () => {
     const [displayedText, setDisplayedText] = useState('')
     const navigate = useNavigate()
 
-    const fullText = 'Over the last few months there have been suspicious transfers among several NGOs'
+    const fullText = `Devices do not assemble themselves.
+
+They require components.
+Firmware.
+Remote synchronization modules.
+
+And above all —
+money.
+A financial ledger reveals controlled transfers disguised as development support.
+
+Charity fluctuates.
+Operations repeat.`
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -39,7 +50,7 @@ const ChennaiBackstory = () => {
 
         const gameStartTimer = setTimeout(() => {
             navigate('/chennai/game')
-        }, 10000)
+        }, 25000)
 
         return () => clearTimeout(gameStartTimer)
     }, [showTerminal, navigate])

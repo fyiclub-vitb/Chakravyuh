@@ -8,7 +8,17 @@ const BangaloreBackstory = () => {
     const [displayedText, setDisplayedText] = useState('')
     const navigate = useNavigate()
 
-    const fullText = 'Intelligence traced the container 417 which reached a Private warehouse somewhere in Banglore'
+    const fullText = `Efficiency is the perfect disguise.
+
+The shipment was rerouted through a technology logistics hub.
+No alarms triggered.
+No audits raised.
+
+But inventory flow does not align with declared routing.
+
+A message has been concealed inside warehouse data.
+
+Decode it.`
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -39,7 +49,7 @@ const BangaloreBackstory = () => {
 
         const gameStartTimer = setTimeout(() => {
             navigate('/bangalore/game')
-        }, 10000)
+        }, 25000)
 
         return () => clearTimeout(gameStartTimer)
     }, [showTerminal, navigate])
@@ -63,9 +73,9 @@ const BangaloreBackstory = () => {
 
     return (
         <div className="relative w-screen h-screen overflow-hidden">
-            <img 
-                src={bangaloreImage} 
-                alt="Bangalore" 
+            <img
+                src={bangaloreImage}
+                alt="Bangalore"
                 className="w-full h-full object-cover"
             />
             {showButton && (

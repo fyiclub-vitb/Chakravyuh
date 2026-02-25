@@ -8,7 +8,16 @@ const MumbaiBackstory = () => {
   const [displayedText, setDisplayedText] = useState('')
   const navigate = useNavigate()
   
-  const fullText = 'Recently, there has been some illegal smuggling of cargos in Mumbai dockyard'
+  const fullText = `A relief shipment passed through customs under humanitarian exemption.
+No scans.
+No scrutiny.
+Medical relief cargo.
+Emergency clearance.
+Zero inspection delay.
+
+Yet one container does not align.
+Something weighs more than it should.
+Cross-verify the manifest with the port`
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -39,7 +48,7 @@ const MumbaiBackstory = () => {
 
     const gameStartTimer = setTimeout(() => {
       navigate('/mumbai/game')
-    }, 10000)
+    }, 25000)
 
     return () => clearTimeout(gameStartTimer)
   }, [showTerminal, navigate])

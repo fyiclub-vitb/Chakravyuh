@@ -8,7 +8,25 @@ const DelhiBackstory = () => {
     const [displayedText, setDisplayedText] = useState('')
     const navigate = useNavigate()
 
-    const fullText = 'With peripheral movements accounted for, central traffic patterns are now under review.\nThe final operational layer may be closer than anticipated.'
+    const fullText = `This is the central node.
+Device synchronization logs confirm remote trigger capability.
+Activation requires:
+– Distributed devices
+– Coordinated timing
+– A high-density public moment
+The signal was never random.
+It moved with intention.
+From entry point…
+To redistribution…
+To device calibration…
+To funding concealment…
+
+Every fragment now intersects.
+A synchronization log references a public assembly.
+An activation script awaits a timed trigger.
+The countdown obtained earlier is not theoretical.
+It is operational.
+Calculate the activation window.`
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -39,7 +57,7 @@ const DelhiBackstory = () => {
 
         const gameStartTimer = setTimeout(() => {
             navigate('/delhi/game')
-        }, 10000)
+        }, 30000)
 
         return () => clearTimeout(gameStartTimer)
     }, [showTerminal, navigate])

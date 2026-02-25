@@ -147,5 +147,95 @@ router.post('/submit-answers', async (req, res) => {
     }
 });
 
+// Get leaderboard and stats
+router.get('/leaderboard', async (req, res) => {
+    try {
+        // Get all users for statistics
+        const allUsers = await User.find({});
+        const totalPlayers = allUsers.length;
+        
+        // Calculate active players (those who started but haven't submitted/disqualified)
+        const activePlayers = allUsers.filter(user => 
+            user.timeStart && !user.isSubmitted && !user.isDisqualified
+        );
+        
+        // Get eligible players for leaderboard (submitted and not disqualified)
+        const eligiblePlayers = await User.find({
+            isSubmitted: true,
+            isDisqualified: false
+        });
+
+        // Calculate points and time remaining for each player
+        const TOTAL_GAME_TIME = 90 * 60 * 1000; // 90 minutes in milliseconds
+        
+        const playersWithStats = eligiblePlayers.map(user => {
+            const timeTaken = new Date(user.submitAt) - new Date(user.timeStart);
+            const timeTakenSeconds = Math.floor(timeTaken / 1000);
+            const totalGameSeconds = 5400; // 90 minutes
+            
+            // Points = seconds remaining when they submitted
+            const points = Math.max(0, totalGameSeconds - timeTakenSeconds);
+            
+            // Get cities completed count
+            const citiesCompleted = Object.values(user.cityProgress).filter(Boolean).length;
+            
+            return {
+                userId: user.userId,
+                name: user.name,
+                points: points,
+                timeTaken: timeTakenSeconds,
+                citiesCompleted: citiesCompleted,
+                cityProgress: user.cityProgress,
+                submitAt: user.submitAt,
+                timeStart: user.timeStart
+            };
+        });
+
+        // Sort by points descending
+        playersWithStats.sort((a, b) => b.points - a.points);
+        
+        // Get top 10 for leaderboard
+        const topTen = playersWithStats.slice(0, 10);
+        
+        // Calculate stats for active players
+        const activePlayersWithTime = activePlayers.map(user => {
+            const currentTime = new Date();
+            const elapsedTime = currentTime - new Date(user.timeStart);
+            const timeRemaining = Math.max(0, TOTAL_GAME_TIME - elapsedTime);
+            const timeRemainingSeconds = Math.floor(timeRemaining / 1000);
+            const citiesCompleted = Object.values(user.cityProgress).filter(Boolean).length;
+            
+            return {
+                userId: user.userId,
+                name: user.name,
+                timeRemainingSeconds: timeRemainingSeconds,
+                citiesCompleted: citiesCompleted,
+                cityProgress: user.cityProgress
+            };
+        });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                statistics: {
+                    totalPlayers: totalPlayers,
+                    activePlayers: activePlayers.length,
+                    completedPlayers: eligiblePlayers.length,
+                    disqualifiedPlayers: allUsers.filter(u => u.isDisqualified).length
+                },
+                leaderboard: topTen,
+                activePlayers: activePlayersWithTime
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while fetching leaderboard',
+            error: error.message
+        });
+    }
+});
+
 
 module.exports = router;

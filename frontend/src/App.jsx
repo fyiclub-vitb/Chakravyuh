@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Register from './pages/Register'
+import Leaderboard from './pages/Leaderboard'
 import MumbaiBackstory from './pages/Mumbai/MumbaiBackstory'
 import Mumbai from './pages/Mumbai/Mumbai'
 import BangaloreBackstory from './pages/Bangalore/BangaloreBackstory'
@@ -24,6 +25,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/disqualify" element={<Disqualify />} />
           
           <Route path="/mumbai/backstory" element={<MumbaiBackstory />} />

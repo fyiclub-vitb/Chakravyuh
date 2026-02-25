@@ -280,7 +280,7 @@ const Jammu = () => {
                             disabled={isProcessing}
                             className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 rounded-lg font-bold tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed shadow-lg text-lg"
                         >
-                            YES
+                            Valid
                         </button>
                         
                         <button
@@ -288,7 +288,7 @@ const Jammu = () => {
                             disabled={isProcessing}
                             className="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 rounded-lg font-bold tracking-wider transition disabled:opacity-40 disabled:cursor-not-allowed shadow-lg text-lg"
                         >
-                            NO
+                            Invalid
                         </button>
                     </div>
 

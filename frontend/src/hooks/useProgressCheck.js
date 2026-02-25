@@ -11,8 +11,8 @@ export const useProgressCheck = () => {
     useEffect(() => {
         const checkProgress = async () => {
             try {
-                // Skip check for home, register, and disqualify pages
-                if (location.pathname === '/' || location.pathname === '/register' || location.pathname === '/disqualify') {
+                // Skip check for home, register, leaderboard, and disqualify pages
+                if (location.pathname === '/' || location.pathname === '/register' || location.pathname === '/disqualify' || location.pathname === '/leaderboard') {
                     setIsChecking(false)
                     return
                 }

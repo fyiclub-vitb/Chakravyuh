@@ -8,7 +8,24 @@ const JammuBackstory = () => {
     const [displayedText, setDisplayedText] = useState('')
     const navigate = useNavigate()
 
-    const fullText = 'We have received intelligence that an attack is most likely imminent somewhere in India.'
+    const fullText = `A new intercept has surfaced.
+
+Encrypted chat logs originating from Jammu.
+
+The language is urgent.
+The tone is operational.
+
+References include:
+– device positioning
+– crowd movement patterns
+– activation windows
+– synchronization checks
+
+The conversation suggests preparation, not speculation.
+
+This is not random chatter.
+
+Review the logs carefully.`
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -39,7 +56,7 @@ const JammuBackstory = () => {
 
         const gameStartTimer = setTimeout(() => {
             navigate('/jammu/game')
-        }, 10000)
+        }, 28000)
 
         return () => clearTimeout(gameStartTimer)
     }, [showTerminal, navigate])

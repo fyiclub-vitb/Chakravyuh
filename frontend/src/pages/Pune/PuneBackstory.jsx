@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import puneStoryImage from '../../assets/Pune_story.jpeg'
+import puneStoryImage from '../../assets/Pune_story.png'
 
 const PuneBackstory = () => {
     const [showButton, setShowButton] = useState(false)
@@ -8,7 +8,14 @@ const PuneBackstory = () => {
     const [displayedText, setDisplayedText] = useState('')
     const navigate = useNavigate()
 
-    const fullText = 'While searching the warehouse in Banglore, the teams found few rare devices from the cargo which needs to be investigated.'
+    const fullText = `Distribution Pattern Confirmed: SPLIT
+Cargo was divided across multiple deployment nodes.
+Decentralized movement increases synchronization complexity.
+Synchronization tests were conducted before distribution.
+Multiple configurations failed.
+One configuration succeeded.
+That configuration defines the activation delay.
+ATTENTION: Few Devices Found in Bangalore warehouse`
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -39,7 +46,7 @@ const PuneBackstory = () => {
 
         const gameStartTimer = setTimeout(() => {
             navigate('/pune/game')
-        }, 10000)
+        }, 28000)
 
         return () => clearTimeout(gameStartTimer)
     }, [showTerminal, navigate])

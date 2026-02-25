@@ -139,9 +139,10 @@ const Delhi = () => {
             .replace(/(\d+)(st|nd|rd|th)/g, '$1') // Remove ordinal suffixes
             .replace(/\s+/g, '') // Remove all spaces
         
-        // Normalize time: remove spaces, colons, and convert to lowercase
+        // Normalize time: remove minutes (:00, :30, etc.) and spaces, convert to lowercase
         const normalizedTime = time.trim().toLowerCase()
-            .replace(/[\s:]+/g, '') // Remove spaces and colons
+            .replace(/:\d{2}/g, '') // Remove colon followed by 2 digits (minutes like :00, :30)
+            .replace(/\s+/g, '') // Remove all spaces
         
         const normalizedNodes = nodes.trim()
 
@@ -151,7 +152,8 @@ const Delhi = () => {
             .replace(/(\d+)(st|nd|rd|th)/g, '$1')
             .replace(/\s+/g, '')
         const correctTime = import.meta.env.VITE_DELHI_TIME.toLowerCase()
-            .replace(/[\s:]+/g, '')
+            .replace(/:\d{2}/g, '') // Remove minutes
+            .replace(/\s+/g, '') // Remove spaces
         const correctNodes = import.meta.env.VITE_DELHI_PLACES
 
         if (normalizedCity === correctCity && 
