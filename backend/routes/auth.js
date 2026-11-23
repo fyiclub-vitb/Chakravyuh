@@ -57,8 +57,7 @@ router.post('/register', async (req, res) => {
 
         res.status(500).json({
             success: false,
-            message: 'Server error',
-            error: error.message
+            message: 'Server error'
         });
     }
 });

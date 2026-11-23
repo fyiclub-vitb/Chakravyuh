@@ -171,12 +171,12 @@ const Leaderboard = () => {
                                     </thead>
                                     <tbody className="divide-y divide-slate-700/50">
                                         {leaderboardData.activePlayers.map((player) => (
-                                            <tr key={player.userId} className="hover:bg-slate-700/30 transition">
+                                            <tr key={player.id} className="hover:bg-slate-700/30 transition">
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="text-white font-medium">{player.name}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-slate-400 text-sm font-mono">{player.userId}</div>
+                                                    <div className="text-slate-400 text-sm font-mono">{player.displayId}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className={`font-mono text-base font-semibold ${
@@ -235,7 +235,7 @@ const Leaderboard = () => {
                                     <tbody className="divide-y divide-slate-700/50">
                                         {leaderboardData.leaderboard.map((player, index) => (
                                             <tr 
-                                                key={player.userId} 
+                                                key={player.id} 
                                                 className={`hover:bg-slate-700/30 transition ${index < 3 ? 'bg-slate-700/20' : ''}`}
                                             >
                                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -247,7 +247,7 @@ const Leaderboard = () => {
                                                     <div className="text-white font-medium">{player.name}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-slate-400 text-sm font-mono">{player.userId}</div>
+                                                    <div className="text-slate-400 text-sm font-mono">{player.displayId}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className="text-xl font-bold text-cyan-400">

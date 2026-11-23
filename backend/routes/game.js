@@ -5,6 +5,13 @@ const { CITY_ORDER, DISQUALIFY_ON_WRONG, checkAnswer } = require('../config/answ
 
 const TOTAL_GAME_TIME = 90 * 60 * 1000; // 90 minutes in milliseconds
 
+// The leaderboard is public, so it must never reveal a full registration number
+// (that is what a player logs in with). Show only the first 5 characters, e.g. "24BCE•••••".
+const maskId = (userId) => {
+    const id = String(userId || '');
+    return id.slice(0, 5) + '•'.repeat(Math.max(0, id.length - 5));
+};
+
 // Brute-force protection: a player may make only a few WRONG guesses per minute.
 // In-memory, so it resets on restart and is per server instance (fine for a single-server event).
 const WRONG_WINDOW_MS = 60 * 1000;
@@ -186,15 +193,15 @@ router.get('/leaderboard', async (req, res) => {
             // Get cities completed count
             const citiesCompleted = Object.values(user.cityProgress).filter(Boolean).length;
             
+            // Only what the leaderboard page displays. `id` is the opaque database id
+            // (used as a React key); it cannot be used to log in.
             return {
-                userId: user.userId,
+                id: String(user._id),
                 name: user.name,
+                displayId: maskId(user.userId),
                 points: points,
                 timeTaken: timeTakenSeconds,
-                citiesCompleted: citiesCompleted,
-                cityProgress: user.cityProgress,
-                submitAt: user.submitAt,
-                timeStart: user.timeStart
+                citiesCompleted: citiesCompleted
             };
         });
 
@@ -213,11 +220,11 @@ router.get('/leaderboard', async (req, res) => {
             const citiesCompleted = Object.values(user.cityProgress).filter(Boolean).length;
             
             return {
-                userId: user.userId,
+                id: String(user._id),
                 name: user.name,
+                displayId: maskId(user.userId),
                 timeRemainingSeconds: timeRemainingSeconds,
-                citiesCompleted: citiesCompleted,
-                cityProgress: user.cityProgress
+                citiesCompleted: citiesCompleted
             };
         });
 
@@ -238,8 +245,7 @@ router.get('/leaderboard', async (req, res) => {
         console.error('Error fetching leaderboard:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error while fetching leaderboard',
-            error: error.message
+            message: 'Server error while fetching leaderboard'
         });
     }
 });
