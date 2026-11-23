@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { verifyAnswer, verifyErrorMessage } from '../../utils/api'
 import puneReportImage from '../../assets/Pune_game.jpeg'
 
 const Pune = () => {
@@ -79,36 +80,30 @@ const Pune = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        
-        const correctDeviceId = import.meta.env.VITE_PUNE_DEVICE_ID
-        const correctFrequencyBand = import.meta.env.VITE_PUNE_FREQUENCY_BAND
-        const correctSignalStrength = import.meta.env.VITE_PUNE_SIGNAL_STRENGTH
-        const correctDelayOffset = import.meta.env.VITE_PUNE_DELAY_OFFSET
 
-        if (
-            formData.deviceId.trim().toLowerCase() === correctDeviceId.toLowerCase() &&
-            formData.frequencyBand.trim() === correctFrequencyBand &&
-            formData.signalStrength.trim().toLowerCase() === correctSignalStrength.toLowerCase() &&
-            formData.delayOffset.trim() === correctDelayOffset
-        ) {
-            setMessage('✓ FULL SYNCHRONISATION ACHIEVED')
-            try {
-                const userData = JSON.parse(localStorage.getItem('userData') || '{}')
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-                const response = await axios.post(`${apiUrl}/game/update-progress`, {
-                    userId: userData.userId,
-                    city: 'Pune'
-                })
-                if (response.data.success) {
-                    setTimeout(() => navigate('/chennai/backstory'), 1500)
-                }
-            } catch (error) {
-                console.error('Error:', error)
-                setMessage('Error updating progress')
+        try {
+            const { correct, disqualified } = await verifyAnswer('Pune', {
+                deviceId: formData.deviceId,
+                frequencyBand: formData.frequencyBand,
+                signalStrength: formData.signalStrength,
+                delayOffset: formData.delayOffset
+            })
+
+            if (disqualified) {
+                navigate('/disqualify')
+                return
+            }
+
+            if (correct) {
+                setMessage('✓ FULL SYNCHRONISATION ACHIEVED')
+                setTimeout(() => navigate('/chennai/backstory'), 1500)
+            } else {
+                setMessage('❌ SYNCHRONISATION FAILED - Check Parameters')
                 setTimeout(() => setMessage(''), 3000)
             }
-        } else {
-            setMessage('❌ SYNCHRONISATION FAILED - Check Parameters')
+        } catch (error) {
+            console.error('Error:', error)
+            setMessage(verifyErrorMessage(error, 'Error verifying parameters'))
             setTimeout(() => setMessage(''), 3000)
         }
     }

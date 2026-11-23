@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { verifyAnswer, verifyErrorMessage } from '../../utils/api'
 import fyiLogo from '../../assets/fyilogo.png'
 
 const Delhi = () => {
@@ -130,97 +131,40 @@ const Delhi = () => {
         e.preventDefault()
         if (isProcessing) return
         setIsProcessing(true)
-        
-        // Normalize inputs
-        const normalizedCity = city.trim().toLowerCase()
-        
-        // Normalize date: remove ordinal suffixes (st, nd, rd, th) and spaces
-        const normalizedDate = date.trim().toLowerCase()
-            .replace(/(\d+)(st|nd|rd|th)/g, '$1') // Remove ordinal suffixes
-            .replace(/\s+/g, '') // Remove all spaces
-        
-        // Normalize time: remove minutes (:00, :30, etc.) and spaces, convert to lowercase
-        const normalizedTime = time.trim().toLowerCase()
-            .replace(/:\d{2}/g, '') // Remove colon followed by 2 digits (minutes like :00, :30)
-            .replace(/\s+/g, '') // Remove all spaces
-        
-        const normalizedNodes = nodes.trim()
 
-        // Get correct values from env
-        const correctCity = import.meta.env.VITE_DELHI_CITY.toLowerCase()
-        const correctDate = import.meta.env.VITE_DELHI_DATE.toLowerCase()
-            .replace(/(\d+)(st|nd|rd|th)/g, '$1')
-            .replace(/\s+/g, '')
-        const correctTime = import.meta.env.VITE_DELHI_TIME.toLowerCase()
-            .replace(/:\d{2}/g, '') // Remove minutes
-            .replace(/\s+/g, '') // Remove spaces
-        const correctNodes = import.meta.env.VITE_DELHI_PLACES
+        try {
+            // The server checks the answer, stores the final submission and
+            // stops the clock on success, or disqualifies the player on failure.
+            const { correct, disqualified } = await verifyAnswer('Delhi', {
+                city,
+                date,
+                time,
+                places: nodes
+            })
 
-        if (normalizedCity === correctCity && 
-            normalizedDate === correctDate && 
-            normalizedTime === correctTime && 
-            normalizedNodes === correctNodes) {
-            
-            setMessage('✓ Pattern Identified')
-            
-            try {
+            if (correct) {
+                setMessage('✓ Pattern Identified')
+
                 const userData = JSON.parse(localStorage.getItem('userData') || '{}')
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-                
-                // Submit final answers
-                const submitResponse = await axios.post(`${apiUrl}/game/submit-answers`, {
-                    userId: userData.userId,
-                    city: city.trim(),
-                    date: date.trim(),
-                    time: time.trim(),
-                    places: nodes.trim()
-                })
-
-                if (submitResponse.data.success) {
-                    // Update progress for Delhi
-                    const progressResponse = await axios.post(`${apiUrl}/game/update-progress`, {
-                        userId: userData.userId,
-                        city: 'Delhi'
-                    })
-                    
-                    if (progressResponse.data.success) {
-                        // Update localStorage with submission status
-                        userData.isSubmitted = true
-                        localStorage.setItem('userData', JSON.stringify(userData))
-                        
-                        setTimeout(() => {
-                            setShowTerminal(true)
-                        }, 1500)
-                    }
-                }
-            } catch (error) {
-                console.error('Error:', error)
-                setMessage('Error updating progress')
-                setIsProcessing(false)
-            }
-        } else {
-            setMessage('✗ Incorrect Assessment - Disqualified')
-            
-            try {
-                const userData = JSON.parse(localStorage.getItem('userData') || '{}')
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-                
-                await axios.post(`${apiUrl}/game/disqualify`, {
-                    userId: userData.userId
-                })
-                
-                // Update localStorage with disqualification status
-                userData.isDisqualified = true
+                userData.isSubmitted = true
                 localStorage.setItem('userData', JSON.stringify(userData))
-                
+
+                setTimeout(() => {
+                    setShowTerminal(true)
+                }, 1500)
+            } else if (disqualified) {
+                setMessage('✗ Incorrect Assessment - Disqualified')
                 setTimeout(() => {
                     navigate('/disqualify')
                 }, 1500)
-            } catch (error) {
-                console.error('Error:', error)
+            } else {
                 setMessage('Error processing request')
                 setIsProcessing(false)
             }
+        } catch (error) {
+            console.error('Error:', error)
+            setMessage(verifyErrorMessage(error, 'Error processing request'))
+            setIsProcessing(false)
         }
     }
 
@@ -421,7 +365,7 @@ const Delhi = () => {
 
                     {message && (
                         <div className={`mt-4 text-center text-sm font-semibold ${
-                            message.includes('✗') ? 'text-red-400' : 'text-green-400'
+                            (message.includes('✗') || message.includes('Error')) ? 'text-red-400' : 'text-green-400'
                         }`}>
                             {message}
                         </div>

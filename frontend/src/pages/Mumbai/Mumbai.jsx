@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { verifyAnswer, verifyErrorMessage } from '../../utils/api'
 
 const Mumbai = () => {
     const [code, setCode] = useState(['', '', ''])
@@ -88,45 +89,25 @@ const Mumbai = () => {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        const correctPasscode = import.meta.env.VITE_MUMBAI_PASSCODE
-        const enteredCode = code.join('')
+        try {
+            const { correct, disqualified } = await verifyAnswer('Mumbai', { code: code.join('') })
 
-        if (enteredCode === correctPasscode) {
-            setMessage('Correct! Proceeding...')
-            
-            try {
-                // Get user data from localStorage
-                const userData = JSON.parse(localStorage.getItem('userData') || '{}')
-                const userId = userData.userId
+            if (disqualified) {
+                navigate('/disqualify')
+                return
+            }
 
-                if (!userId) {
-                    setMessage('User not found. Please register first.')
-                    setTimeout(() => setMessage(''), 3000)
-                    return
-                }
-
-                // Make API call to update progress
-                const apiUrl = import.meta.env.VITE_API_URL;
-                const response = await axios.post(`${apiUrl}/game/update-progress`, {
-                    userId: userId,
-                    city: 'Mumbai'
-                })
-
-                if (response.data.success) {
-                    console.log('Progress updated successfully:', response.data)
-                    
-                    // Redirect to Bangalore backstory after a short delay
-                    setTimeout(() => {
-                        navigate('/bangalore/backstory')
-                    }, 1500)
-                }
-            } catch (error) {
-                console.error('Error updating progress:', error)
-                setMessage('Error updating progress. Please try again.')
+            if (correct) {
+                setMessage('Correct! Proceeding...')
+                // Redirect to Bangalore backstory after a short delay
+                setTimeout(() => navigate('/bangalore/backstory'), 1500)
+            } else {
+                setMessage('Incorrect Passcode')
                 setTimeout(() => setMessage(''), 3000)
             }
-        } else {
-            setMessage('Incorrect Passcode')
+        } catch (error) {
+            console.error('Error verifying passcode:', error)
+            setMessage(verifyErrorMessage(error, 'Error verifying passcode. Please try again.'))
             setTimeout(() => setMessage(''), 3000)
         }
 
@@ -277,7 +258,7 @@ const Mumbai = () => {
 
                     {/* Status Message */}
                     {message && (
-                        <div className={`mt-4 text-center text-sm font-semibold ${message.includes("Incorrect")
+                        <div className={`mt-4 text-center text-sm font-semibold ${(message.includes("Incorrect") || message.includes("Error"))
                                 ? "text-red-400"
                                 : "text-green-400"
                             }`}>

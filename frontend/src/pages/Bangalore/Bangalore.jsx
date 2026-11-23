@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { verifyAnswer, verifyErrorMessage } from '../../utils/api'
 import bangaloreEndImage from '../../assets/Bangalore_ending.png'
 
 const Bangalore = () => {
@@ -79,43 +80,42 @@ const Bangalore = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        const correctPasscode = import.meta.env.VITE_BANGALORE_PASSCODE
-        const enteredCode = code.join('').toUpperCase()
 
-        if (enteredCode === correctPasscode) {
-            setMessage('Correct! Loading results...')
-            // Show end screen
-            setShowEndScreen(true)
-            
-            // Show next button after 3 seconds
-            setTimeout(() => {
-                setShowNextButton(true)
-            }, 3000)
-        } else {
+        try {
+            const { correct, disqualified } = await verifyAnswer('Bangalore', { code: code.join('') })
+
+            if (disqualified) {
+                navigate('/disqualify')
+                return
+            }
+
+            if (correct) {
+                setMessage('Correct! Loading results...')
+                // Show end screen
+                setShowEndScreen(true)
+
+                // Show next button after 3 seconds
+                setTimeout(() => {
+                    setShowNextButton(true)
+                }, 3000)
+                return
+            }
+
             setMessage('Incorrect Passcode')
             setTimeout(() => setMessage(''), 3000)
-            setCode(['', '', '', ''])
-            inputRefs[0].current?.focus()
+        } catch (error) {
+            console.error('Error verifying passcode:', error)
+            setMessage(verifyErrorMessage(error, 'Error verifying passcode. Please try again.'))
+            setTimeout(() => setMessage(''), 3000)
         }
+
+        setCode(['', '', '', ''])
+        inputRefs[0].current?.focus()
     }
 
-    const handleNext = async () => {
-        try {
-            const userData = JSON.parse(localStorage.getItem('userData') || '{}')
-            const apiUrl = import.meta.env.VITE_API_URL;
-
-            const response = await axios.post(`${apiUrl}/game/update-progress`, {
-                userId: userData.userId,
-                city: 'Bangalore'
-            })
-
-            if (response.data.success) {
-                navigate('/pune/backstory')
-            }
-        } catch (error) {
-            console.error('Error:', error)
-            setMessage('Error updating progress')
-        }
+    // Progress was already saved by the server when the passcode was verified
+    const handleNext = () => {
+        navigate('/pune/backstory')
     }
 
     const handleDigitChange = (index, value) => {
@@ -183,7 +183,7 @@ const Bangalore = () => {
                     </form>
 
                     {message && (
-                        <div className={`mt-4 text-center text-sm font-semibold ${message.includes("Incorrect") ? "text-red-400" : "text-green-400"}`}>
+                        <div className={`mt-4 text-center text-sm font-semibold ${(message.includes("Incorrect") || message.includes("Error")) ? "text-red-400" : "text-green-400"}`}>
                             {message}
                         </div>
                     )}

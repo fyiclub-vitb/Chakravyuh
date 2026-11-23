@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { verifyAnswer, verifyErrorMessage } from '../../utils/api'
 
 const Chennai = () => {
     const [ngoName, setNgoName] = useState('')
@@ -73,31 +74,25 @@ const Chennai = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        const correctNgoName = import.meta.env.VITE_CHENNAI_NGO_NAME
-        
-        // Normalize both strings: lowercase and remove all spaces
-        const normalizedCorrect = correctNgoName.toLowerCase().replace(/\s+/g, '')
-        const normalizedEntered = ngoName.trim().toLowerCase().replace(/\s+/g, '')
 
-        if (normalizedEntered === normalizedCorrect) {
-            setMessage('✓ PRIMARY FINANCIAL COVER ENTITY IDENTIFIED')
-            try {
-                const userData = JSON.parse(localStorage.getItem('userData') || '{}')
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-                const response = await axios.post(`${apiUrl}/game/update-progress`, {
-                    userId: userData.userId,
-                    city: 'Chennai'
-                })
-                if (response.data.success) {
-                    setTimeout(() => navigate('/jammu/backstory'), 1500)
-                }
-            } catch (error) {
-                console.error('Error:', error)
-                setMessage('Error updating progress')
+        try {
+            const { correct, disqualified } = await verifyAnswer('Chennai', { ngoName })
+
+            if (disqualified) {
+                navigate('/disqualify')
+                return
+            }
+
+            if (correct) {
+                setMessage('✓ PRIMARY FINANCIAL COVER ENTITY IDENTIFIED')
+                setTimeout(() => navigate('/jammu/backstory'), 1500)
+            } else {
+                setMessage('❌ INCORRECT ENTITY - Review Documents')
                 setTimeout(() => setMessage(''), 3000)
             }
-        } else {
-            setMessage('❌ INCORRECT ENTITY - Review Documents')
+        } catch (error) {
+            console.error('Error:', error)
+            setMessage(verifyErrorMessage(error, 'Error verifying entity'))
             setTimeout(() => setMessage(''), 3000)
         }
     }

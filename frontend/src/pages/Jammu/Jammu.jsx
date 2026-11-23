@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { verifyAnswer, verifyErrorMessage } from '../../utils/api'
 
 const LOGS = [
     "[02:08:11] Initial sector sweep complete. Northern corridor stable.",
@@ -166,53 +167,35 @@ const Jammu = () => {
         return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
     }
 
-    const handleYes = async () => {
+    // Both buttons are checked by the server; a wrong assessment disqualifies the player there
+    const submitAssessment = async (answer) => {
         if (isProcessing) return
         setIsProcessing(true)
-        setMessage('❌ Incorrect Assessment - Disqualified')
-        
-        try {
-            const userData = JSON.parse(localStorage.getItem('userData') || '{}')
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-            
-            const response = await axios.post(`${apiUrl}/game/disqualify`, {
-                userId: userData.userId
-            })
-            
-            if (response.data.success) {
-                setTimeout(() => navigate('/disqualify'), 1500)
-            }
-        } catch (error) {
-            console.error('Error:', error)
-            setMessage('Error processing request')
-            setIsProcessing(false)
-        }
-    }
 
-    const handleNo = async () => {
-        if (isProcessing) return
-        setIsProcessing(true)
-        setMessage('✓ Correct Assessment - Proceeding')
-        
         try {
-            const userData = JSON.parse(localStorage.getItem('userData') || '{}')
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
-            
-            const response = await axios.post(`${apiUrl}/game/update-progress`, {
-                userId: userData.userId,
-                city: 'Jammu'
-            })
-            
-            if (response.data.success) {
+            const { correct, disqualified } = await verifyAnswer('Jammu', { answer })
+
+            if (correct) {
+                setMessage('✓ Correct Assessment - Proceeding')
                 setTimeout(() => navigate('/delhi/backstory'), 1500)
+            } else if (disqualified) {
+                setMessage('❌ Incorrect Assessment - Disqualified')
+                setTimeout(() => navigate('/disqualify'), 1500)
+            } else {
+                setMessage('Error processing request')
+                setTimeout(() => setMessage(''), 3000)
+                setIsProcessing(false)
             }
         } catch (error) {
             console.error('Error:', error)
-            setMessage('Error updating progress')
+            setMessage(verifyErrorMessage(error, 'Error processing request'))
             setTimeout(() => setMessage(''), 3000)
             setIsProcessing(false)
         }
     }
+
+    const handleYes = () => submitAssessment('yes')
+    const handleNo = () => submitAssessment('no')
 
     return (
         <div className="flex h-screen w-screen overflow-hidden bg-black">
