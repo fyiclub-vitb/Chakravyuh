@@ -1,105 +1,118 @@
+<div align="center">
+
 # Chakravyuh
 
-A timed, browser-based **spy / escape-room style puzzle game** built by the FYI Club (VIT Bhopal). Players register as an "agent", then work through **six Indian cities** in a fixed order, solving a puzzle in each one to uncover the location, date, time and scale of a planned attack. They have **90 minutes** in total. A wrong final answer, or running out of time, disqualifies the player. Everyone who finishes is ranked on a leaderboard by how much time they had left.
+**A 90-minute, six-city espionage puzzle game that runs in the browser.**
 
-## Contents
+Track a planned attack across India. Solve one city to unlock the next. Beat the clock.
 
-- [How the game works](#how-the-game-works)
+![Node.js](https://img.shields.io/badge/Node.js-20.19%2B-339933?logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)
+![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose%209-47A248?logo=mongodb&logoColor=white)
+![Unity WebGL](https://img.shields.io/badge/Unity-WebGL-000000?logo=unity&logoColor=white)
+
+Built by the **FYI Club, VIT Bhopal**
+
+</div>
+
+---
+
+## Table of contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [How to play](#how-to-play)
+- [Architecture](#architecture)
 - [Tech stack](#tech-stack)
-- [Project structure](#project-structure)
-- [Getting started](#getting-started)
-- [Environment variables](#environment-variables)
+- [Quick start](#quick-start)
+- [Configuration](#configuration)
 - [API reference](#api-reference)
-- [Data model](#data-model)
-- [Production deployment](#production-deployment)
-- [Known issues and notes](#known-issues-and-notes)
+- [Security model](#security-model)
+- [Deployment](#deployment)
+- [Project structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [Contributors](#contributors)
 
-## How the game works
+## Overview
 
-### Player flow
+Chakravyuh is a timed puzzle game designed for club events and hackathon-style competitions. Each participant registers as an agent and has **90 minutes** to move through **six Indian cities**, solving a different puzzle in each one. The puzzles combine embedded 3D scenes, document analysis and deduction, and together they reveal the location, date, time and scale of a planned attack.
 
-1. **Home (`/`)**: a "classified transmission" landing page. *Accept Mission* leads to registration.
-2. **Register (`/register`)**: the player enters a registration number (format `23BAI10234`), a name and an email ending in `@vitbhopal.ac.in`. Registering starts the 90-minute clock (`timeStart` is set on the server). Registering again with the same ID resumes the existing session.
-3. **Six cities, strictly in order.** Each city has a **backstory** page (`/<city>/backstory`) with a story image and a typed-out intel briefing, followed by the **game** page (`/<city>/game`) with the puzzle.
+Finish the final city correctly and your remaining time becomes your score on a live leaderboard. Get the final answer wrong, or run out of time, and you are disqualified.
 
-   | # | City | Puzzle |
-   |---|------|--------|
-   | 1 | Mumbai | Explore an embedded Unity WebGL scene and find a **3-digit access code** |
-   | 2 | Bangalore | Explore a second Unity WebGL scene and find a passcode |
-   | 3 | Pune | Analyse a device synchronisation report image and enter **Device ID, Frequency Band, Signal Strength, Delay Offset** |
-   | 4 | Chennai | Identify an **NGO name** |
-   | 5 | Jammu | Read a long scrolling intel log and make a **Yes/No assessment** (the wrong choice disqualifies) |
-   | 6 | Delhi | Final submission: **city, date, time and number of locations** of the attack |
+## Features
 
-4. **Game pages** share a layout: puzzle on the left (about 80%) and a side panel on the right with the **mission timer**, the **current task** and the **answer input**.
-5. **Correct answer**: the city is marked complete via the API and the player is sent to the next city's backstory.
-6. **Disqualification** happens when the Delhi answer is wrong, when the Jammu assessment is wrong, or when the timer reaches zero. The player lands on `/disqualify`.
-7. **Leaderboard (`/leaderboard`)** shows live stats (total, active, completed and disqualified players) and the top 10 finishers.
+- **Six sequential levels.** Each city has a story briefing and a puzzle, and a city only unlocks once the previous one is solved.
+- **Embedded Unity WebGL scenes** for the Mumbai and Bangalore levels, with no plugin or install needed.
+- **Server-side answer checking.** Correct answers live only on the backend and are never shipped to the browser.
+- **Server-enforced rules.** City order, the 90-minute limit and disqualification are all decided by the server, not the client.
+- **Brute-force protection.** Each player is limited in how many wrong guesses they can make per minute.
+- **Live leaderboard** with event statistics, an active-players view with time remaining, and a top-10 ranking. IDs are masked on this public page.
+- **Resumable sessions.** Refreshing or reopening the app returns a player to their current city with their original clock.
 
-### Progress enforcement
+## How to play
 
-`ProgressGuard` wraps every route and runs `useProgressCheck` on each navigation:
+1. **Register** with your registration number, name and `@vitbhopal.ac.in` email. The 90-minute clock starts.
+2. **Read the briefing** for each city, then open its puzzle.
+3. **Solve the puzzle** and submit your answer. A correct answer unlocks the next city.
+4. **Reach Delhi** and submit your final assessment of where, when and how large the attack is.
 
-- If there is no `userData` in `localStorage`, the player is redirected to `/register`.
-- Otherwise the app re-syncs with the server (it calls `/api/auth/register`, which doubles as login) and updates `localStorage`.
-- A disqualified user is sent to `/disqualify`.
-- Otherwise the player is forced onto the **first incomplete city**, so they cannot skip ahead or return to a completed city by typing a URL.
-- `/`, `/register`, `/leaderboard` and `/disqualify` are exempt.
+| # | City | Challenge |
+|---|------|-----------|
+| 1 | Mumbai | Explore a 3D scene and recover a 3-digit access code |
+| 2 | Bangalore | Explore a second 3D scene and recover a passcode |
+| 3 | Pune | Analyse a device synchronisation report and enter four parameters |
+| 4 | Chennai | Work through recovered documents to identify an NGO |
+| 5 | Jammu | Read an intel log and make a Yes/No assessment. The wrong call ends your game |
+| 6 | Delhi | Final submission: city, date, time and number of locations |
 
-### Scoring
+**Scoring:** points are the seconds left on your clock when you submit the final answer, so faster is better.
 
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph Browser
+        UI[React app<br/>React Router + Tailwind]
+        U[Unity WebGL scenes<br/>Mumbai / Bangalore]
+    end
+
+    subgraph Server
+        FE[Frontend server<br/>Express, serves dist/]
+        API[REST API<br/>Express 5]
+        ANS[Answer checker<br/>config/answers.js]
+    end
+
+    DB[(MongoDB)]
+
+    UI -->|static assets| FE
+    UI <-->|JSON /api| API
+    U -. embedded in .-> UI
+    API --> ANS
+    API <--> DB
 ```
-points = max(0, 5400 - secondsBetween(timeStart, submitAt))
-```
 
-Points are the **seconds remaining** when the player submitted the final answer. Only players with `isSubmitted = true` and `isDisqualified = false` appear on the leaderboard, sorted by points (highest first). Note that the leaderboard counts cities completed, but ranking is by time only.
-
-### Timer
-
-The timer is **client-side**: each game page computes `90 min - (now - timeStart)` from the stored `timeStart`. At `0` the page calls `POST /api/game/disqualify`.
+The browser never sees a correct answer. It sends a guess to `POST /api/game/verify`, and the API checks it against secrets held in the backend environment, enforces order and time, and records progress in MongoDB.
 
 ## Tech stack
 
 | Layer | Technology |
 |-------|-----------|
 | Frontend | React 19, React Router 7, Vite 7, Tailwind CSS 3, Axios |
-| Puzzle scenes | Unity WebGL builds (Mumbai, Bangalore), embedded via `<iframe>` from `frontend/public` |
+| Puzzle scenes | Unity WebGL builds, embedded via `<iframe>` |
 | Backend | Node.js, Express 5, Mongoose 9 |
-| Database | MongoDB |
-| Prod frontend server | Small Express server (`frontend/server.js`) that serves `dist/` with Unity-friendly headers |
+| Database | MongoDB (local or Atlas) |
+| Production web server | Small Express server that serves the build with the headers Unity needs |
 
-## Project structure
-
-```
-Chakravyuh/
-├── backend/
-│   ├── server.js            # Express app, CORS, mounts /api/auth and /api/game
-│   ├── config/db.js         # Mongoose connection (exits the process on failure)
-│   ├── models/User.js       # Player schema
-│   └── routes/
-│       ├── auth.js          # POST /register (register or log in)
-│       └── game.js          # progress, disqualify, submit-answers, leaderboard
-└── frontend/
-    ├── server.js            # Production static server (gzip and COOP/COEP headers for Unity)
-    ├── vite.config.js       # Dev server; proxies /api to localhost:5000
-    ├── public/
-    │   ├── Mumbai_game/     # Unity WebGL build
-    │   └── Banglore_game/   # Unity WebGL build (note the spelling in the folder name)
-    └── src/
-        ├── App.jsx          # Routes, wrapped in ProgressGuard
-        ├── components/ProgressGuard.jsx
-        ├── hooks/useProgressCheck.js
-        ├── utils/progressHelper.js    # city order, next-city and access helpers
-        ├── assets/          # story images
-        └── pages/           # Home, Register, Leaderboard, Disqualify and one folder per city
-```
-
-## Getting started
+## Quick start
 
 ### Prerequisites
 
-- Node.js 18 or newer (tested on Node 22)
-- A MongoDB instance: local, or a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster
+- **Node.js 20.19 or newer** (required by Vite 7)
+- **MongoDB**: a local instance, or a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster
 
 ### 1. Clone
 
@@ -108,151 +121,211 @@ git clone https://github.com/fyiclub-vitb/Chakravyuh.git
 cd Chakravyuh
 ```
 
-### 2. Backend
+### 2. Start the backend
 
 ```bash
 cd backend
+cp .env.example .env      # set MONGO_URI and the puzzle answers
 npm install
+npm start
 ```
 
-Create `backend/.env`:
+You should see `Server running on port 5000` and `MongoDB Connected`.
 
-```env
-MONGO_URI=mongodb://127.0.0.1:27017/chakravyuh
-PORT=5000
-```
-
-Start it:
-
-```bash
-npm start          # node server.js
-# or, with auto-reload:
-npx nodemon server.js
-```
-
-You should see `Server running on port 5000` and `MongoDB Connected`. Visiting <http://localhost:5000/> returns `Backend Running`.
-
-### 3. Frontend
+### 3. Start the frontend
 
 ```bash
 cd frontend
-npm install        # use install, not ci (see Known issues)
+cp .env.example .env      # only VITE_API_URL is needed
+npm install
+npm run build
+npm start
 ```
 
-Create `frontend/.env` (see [Environment variables](#environment-variables) for the full list):
+Open <http://localhost:3000>.
 
-```env
-VITE_API_URL=http://localhost:5000/api
+> **Use the production build, not `npm run dev`, to play.** The Unity scenes ship as pre-compressed `.gz` files and need the headers that `frontend/server.js` sets. `npm run dev` (<http://localhost:5173>) is fine for working on the React UI, but the 3D levels may not load there.
 
-# Puzzle answers: you choose these, and the puzzle content must match them
-VITE_MUMBAI_PASSCODE=...
-VITE_BANGALORE_PASSCODE=...
-VITE_PUNE_DEVICE_ID=...
-VITE_PUNE_FREQUENCY_BAND=...
-VITE_PUNE_SIGNAL_STRENGTH=...
-VITE_PUNE_DELAY_OFFSET=...
-VITE_CHENNAI_NGO_NAME=...
-VITE_DELHI_CITY=...
-VITE_DELHI_DATE=...
-VITE_DELHI_TIME=...
-VITE_DELHI_PLACES=...
-```
+## Configuration
 
-Run the dev server:
-
-```bash
-npm run dev        # http://localhost:5173
-```
-
-Open <http://localhost:5173>, register with an ID like `24BCE11527` and an `@vitbhopal.ac.in` email, and play.
-
-> **Unity scenes in dev mode:** the Unity builds are shipped as pre-compressed `.gz` files and need a server that sends `Content-Encoding: gzip`. The Vite dev server may not do this. If the Mumbai or Bangalore scene does not load in `npm run dev`, use the production build below, which does.
-
-## Environment variables
-
-### Backend (`backend/.env`)
+### Backend: `backend/.env`
 
 | Variable | Required | Description |
-|----------|----------|-------------|
-| `MONGO_URI` | yes | MongoDB connection string |
-| `PORT` | no | Defaults to `5000` |
+|----------|:--------:|-------------|
+| `MONGO_URI` | Yes | MongoDB connection string |
+| `PORT` | No | API port. Defaults to `5000` |
+| `MUMBAI_PASSCODE` | Yes | Answer for Mumbai |
+| `BANGALORE_PASSCODE` | Yes | Answer for Bangalore (case-insensitive) |
+| `PUNE_DEVICE_ID`, `PUNE_FREQUENCY_BAND`, `PUNE_SIGNAL_STRENGTH`, `PUNE_DELAY_OFFSET` | Yes | The four Pune answers |
+| `CHENNAI_NGO_NAME` | Yes | Answer for Chennai (case-insensitive, spaces ignored) |
+| `JAMMU_CORRECT_ANSWER` | No | Correct Yes/No call. Defaults to `no` |
+| `DELHI_CITY`, `DELHI_DATE`, `DELHI_TIME`, `DELHI_PLACES` | Yes | The four Delhi answers. Date ignores `st/nd/rd/th` and spaces, and time ignores minutes and spaces |
+| `MAX_WRONG_ATTEMPTS_PER_MINUTE` | No | Wrong guesses allowed per player per minute. Defaults to `5` |
 
-### Frontend (`frontend/.env`)
+A missing answer variable makes verification for that city return `500` instead of guessing.
 
-All frontend variables are read at **build time** by Vite.
+### Frontend: `frontend/.env`
 
-| Variable | Used in | Description |
-|----------|---------|-------------|
-| `VITE_API_URL` | all pages | Backend base URL **including `/api`**, e.g. `http://localhost:5000/api` |
-| `VITE_MUMBAI_PASSCODE` | Mumbai | The 3-digit code |
-| `VITE_BANGALORE_PASSCODE` | Bangalore | Bangalore passcode |
-| `VITE_PUNE_DEVICE_ID` | Pune | Device ID (case-insensitive) |
-| `VITE_PUNE_FREQUENCY_BAND` | Pune | Frequency band (exact match) |
-| `VITE_PUNE_SIGNAL_STRENGTH` | Pune | Signal strength (case-insensitive) |
-| `VITE_PUNE_DELAY_OFFSET` | Pune | Delay offset (exact match) |
-| `VITE_CHENNAI_NGO_NAME` | Chennai | NGO name (case-insensitive, spaces ignored) |
-| `VITE_DELHI_CITY` | Delhi | Attack city (case-insensitive) |
-| `VITE_DELHI_DATE` | Delhi | Date; ordinal suffixes (`15th` vs `15`) and spaces are ignored |
-| `VITE_DELHI_TIME` | Delhi | Time; minutes and spaces are ignored (`11:00 PM` matches `11 PM`) |
-| `VITE_DELHI_PLACES` | Delhi | Number of locations (exact match) |
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | Backend base URL including `/api`, for example `http://localhost:5000/api` |
+
+Anything prefixed with `VITE_` is baked into the public JavaScript at build time. **Never put a secret in a `VITE_` variable.**
 
 ## API reference
 
-Base URL: `http://localhost:5000/api`. All bodies are JSON and every response has a `success` flag.
+Base URL: `http://localhost:5000/api`. Requests and responses are JSON.
 
-| Method | Endpoint | Body | Description |
-|--------|----------|------|-------------|
-| `POST` | `/auth/register` | `userId`, `name`, `email` | Creates a user and sets `timeStart`, or returns the existing user (idempotent login). Returns `400` on a duplicate email. |
-| `POST` | `/game/update-progress` | `userId`, `city` | Marks one of `Mumbai, Bangalore, Pune, Chennai, Jammu, Delhi` as complete |
-| `POST` | `/game/disqualify` | `userId` | Sets `isDisqualified` and `isSubmitted`, and records `submitAt` |
-| `POST` | `/game/submit-answers` | `userId`, `city`, `date`, `time`, `places` | Stores the final answers, sets `isSubmitted` and `submitAt` |
-| `GET` | `/game/leaderboard` | none | Returns `statistics`, the top 10 `leaderboard`, and the `activePlayers` with time remaining |
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| `POST` | `/auth/register` | Create a player and start their clock, or resume an existing one |
+| `POST` | `/game/verify` | Check an answer for a city (see below) |
+| `POST` | `/game/disqualify` | Disqualify a player, only valid once their 90 minutes have run out |
+| `GET` | `/game/leaderboard` | Public statistics, top 10 and active players (IDs masked) |
 
-## Data model
+### `POST /game/verify`
 
-`User` (MongoDB collection `users`):
+Request body: `{ "userId", "city", "answers" }`, where `answers` depends on the city:
 
-| Field | Type | Notes |
-|-------|------|-------|
-| `userId` | String, unique | Registration number |
-| `name`, `email` | String, `email` unique | |
-| `cityProgress` | `{ Mumbai, Bangalore, Pune, Chennai, Jammu, Delhi }` | Booleans, default `false` |
-| `timeStart` | Date | Set at first registration |
-| `isDisqualified` | Boolean | |
-| `isSubmitted`, `submitAt` | Boolean, Date | Set on final submission or disqualification |
-| `city`, `date`, `time`, `places` | String | The submitted final answers |
-| `createdAt`, `updatedAt` | Date | Added automatically by Mongoose timestamps |
+| City | `answers` |
+|------|-----------|
+| Mumbai, Bangalore | `{ "code" }` |
+| Pune | `{ "deviceId", "frequencyBand", "signalStrength", "delayOffset" }` |
+| Chennai | `{ "ngoName" }` |
+| Jammu | `{ "answer": "yes" or "no" }` |
+| Delhi | `{ "city", "date", "time", "places" }` |
 
-## Production deployment
+| Status | Meaning |
+|:------:|---------|
+| `200` `correct: true` | Correct. The city is marked complete. For Delhi, the final answers are stored and the clock stops |
+| `200` `correct: false` | Wrong answer, try again. In Jammu and Delhi the response also has `disqualified: true` and the game ends |
+| `403` | Already disqualified, or the 90 minutes are over |
+| `409` | City not unlocked yet, already completed, or final answer already submitted |
+| `429` | Too many wrong guesses. Wait a minute |
 
-```bash
-# Backend: host anywhere that runs Node (Render, Railway, a VM, ...)
-cd backend && npm install && npm start
+## Security model
 
-# Frontend
-cd frontend
-npm install
-# set VITE_API_URL to the public backend URL, plus all puzzle variables
-npm run build
-npm start          # serves dist/ on PORT (default 3000)
+The game is designed so that a player cannot get ahead by tampering with the browser.
+
+| Concern | How it is handled |
+|---------|-------------------|
+| Reading answers from the page source | Answers exist only in `backend/.env`. The frontend bundle contains none |
+| Marking a city complete without solving it | Progress is written only by the server, inside `/verify`, after a correct answer |
+| Skipping levels | `/verify` accepts only the player's next unsolved city |
+| Extending the clock | The server enforces the 90-minute limit. The on-screen timer is display only |
+| Disqualifying other players | `/disqualify` refuses unless the player's time has actually expired |
+| Guessing codes by script | Wrong guesses are rate-limited per player |
+| Leaking identities | The public leaderboard shows masked IDs (`24BCE•••••`) and no emails |
+| Leaking internals | Server errors return a generic message, never raw error text |
+
+**Known limitations:**
+
+- A player is identified only by their registration number, with no password or session token. Anyone who knows another player's number can resume that session.
+- The rate limiter is in memory. It resets on restart and does not span multiple server instances.
+- `/auth/register` does not yet validate the ID or email format on the server. The format is enforced only in the browser.
+
+## Deployment
+
+1. **Database:** create a MongoDB Atlas cluster, or run MongoDB on your own host.
+2. **Backend:** deploy `backend/` to any Node host (Render, Railway, a VM). Set `MONGO_URI` and every answer variable in the host's environment settings. Do not commit `.env`.
+3. **Frontend:** set `VITE_API_URL` to the public backend URL, then:
+
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   npm start          # serves dist/ on PORT (default 3000)
+   ```
+
+If you host the frontend on a static platform such as Vercel or Netlify instead, you must reproduce the headers that `frontend/server.js` sets (`Content-Encoding: gzip` for the Unity `.gz` files, correct MIME types, and the `Cross-Origin-Opener-Policy` and `Cross-Origin-Embedder-Policy` headers). Otherwise the Mumbai and Bangalore scenes will not load.
+
+## Project structure
+
+```
+Chakravyuh/
+├── backend/
+│   ├── server.js              # Express app and route mounting
+│   ├── config/
+│   │   ├── db.js              # MongoDB connection
+│   │   └── answers.js         # Server-side answer checking
+│   ├── models/User.js         # Player schema
+│   └── routes/
+│       ├── auth.js            # Registration / login
+│       └── game.js            # verify, disqualify, leaderboard
+├── docs/
+│   └── contributors-banner.svg   # README banner
+└── frontend/
+    ├── server.js              # Production server (headers for Unity)
+    ├── public/                # Unity WebGL builds (Mumbai, Bangalore)
+    └── src/
+        ├── App.jsx            # Routes
+        ├── components/        # ProgressGuard
+        ├── hooks/             # useProgressCheck
+        ├── utils/             # api.js (verifyAnswer), progressHelper.js
+        ├── assets/            # Story images
+        └── pages/             # Home, Register, Leaderboard, Disqualify, one folder per city
 ```
 
-`frontend/server.js`:
+## Troubleshooting
 
-- serves `dist/` and falls back to `index.html` for React Router paths
-- sets `Content-Encoding: gzip` and the correct MIME types for the Unity `.data.gz`, `.wasm.gz` and `.js.gz` files
-- skips compression for already-compressed Unity files
-- sets `Cross-Origin-Opener-Policy` and `Cross-Origin-Embedder-Policy` headers
+| Symptom | Likely cause and fix |
+|---------|----------------------|
+| The Mumbai or Bangalore scene is blank or stuck loading | You are on `npm run dev`. Use `npm run build && npm start`, or serve the build with the Unity headers |
+| Every answer returns a `500` error | An answer variable is missing in `backend/.env`. The server log names which one |
+| `ECONNREFUSED` or "Network Error" in the browser | The backend is not running, or `VITE_API_URL` is wrong. It must include `/api`. Rebuild the frontend after changing it |
+| Backend exits right after starting | `MONGO_URI` is wrong or MongoDB is unreachable (for Atlas, check the IP allow-list) |
+| "Too many incorrect attempts" | The per-minute wrong-guess limit was hit. Wait a minute |
+| Changed `frontend/.env` but nothing happened | Vite reads it at build time. Restart `npm run dev` or run `npm run build` again |
 
-If you deploy the frontend to a static host (Vercel, Netlify, etc.) instead, you must reproduce those Unity headers there, or the Mumbai and Bangalore scenes will not load.
+## Roadmap
 
-## Known issues and notes
+- [ ] Authenticated sessions, so a registration number alone cannot be used to log in
+- [ ] Server-side validation of registration number and email format
+- [ ] Shared rate-limit store (for example Redis) for multi-instance deployments
+- [ ] Compress the story images (currently 9-10 MB each) for faster first load
+- [ ] Automated tests and CI
+- [ ] Admin view for organisers: reset a player, view progress, export results
 
-- **Lockfile out of sync:** `frontend/package-lock.json` is missing `express` and `compression`, so `npm ci` fails. Use `npm install` and commit the updated lockfile.
-- **Answers are visible in the browser:** because the answers are `VITE_*` variables, they are bundled into the public JavaScript, and a curious player can find them in DevTools. Answer checking should move to the backend (for example a `POST /api/game/verify` endpoint) before any serious or competitive event.
-- **Client-trusted state:** the timer, the Jammu Yes/No decision and progress updates are driven by the browser, and the API does not verify that a player has actually solved a city before `update-progress` marks it complete. The backend does not validate the 90-minute limit either.
-- **Missing `VITE_API_URL` fallback:** `Mumbai.jsx` calls `update-progress` with `VITE_API_URL` and no localhost fallback, unlike the other pages, so the variable must be set.
-- **Registration-number rules:** the frontend enforces `^\d{2}[A-Z]{3}\d{5}$` and a `@vitbhopal.ac.in` email, but the backend does not.
-- **Repo hygiene:** the `.vs/` folder (Visual Studio cache) is committed and should be removed and added to `.gitignore`. `frontend/README.md` is still the default Vite template text, and there is no `.env.example` yet.
-- **Large assets:** the story images are about 9-10 MB each, which will slow first load on poor connections. Compressing them (WebP, or smaller dimensions) is an easy win.
-- **Folder spelling:** the Bangalore Unity folder is `Banglore_game` (no "a"). The code is consistent with it, so don't "fix" one side only.
+## Contributing
+
+Contributions are welcome.
+
+1. Fork the repository and create a branch: `git checkout -b feature/your-change`
+2. Make your change, and run `npm run lint` in `frontend/`
+3. Never commit `.env` files or puzzle answers
+4. Open a pull request describing what changed and why
+
+For a new puzzle or city, add its answer check to `backend/config/answers.js` and its variables to `backend/.env.example`. Never check answers in the frontend.
+
+## Contributors
+
+
+Built by the FYI Club, VIT Bhopal, with contributions from the Technical Team.
+
+### Special Credit
+
+<table align="center">
+  <tr>
+    <td align="center" width="170">
+      <a href="https://github.com/Vansh-kash2023">
+        <img src="https://github.com/Vansh-kash2023.png?size=200" width="100" alt="Vansh Kashyap"><br>
+        <sub><b>Vansh Kashyap</b></sub>
+      </a><br>
+      <sub><a href="https://github.com/Vansh-kash2023">@Vansh-kash2023</a></sub>
+    </td>
+    <td align="center" width="170">
+      <a href="https://github.com/Paurush-Nimje">
+        <img src="https://github.com/Paurush-Nimje.png?size=200" width="100" alt="Paurush Nimje"><br>
+        <sub><b>Paurush Nimje</b></sub>
+      </a><br>
+      <sub><a href="https://github.com/Paurush-Nimje">@Paurush-Nimje</a></sub>
+    </td>
+  </tr>
+</table>
+
+
+### All contributors
+
+<a href="https://github.com/fyiclub-vitb/Chakravyuh/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=fyiclub-vitb/Chakravyuh" alt="Chakravyuh contributors">
+</a>
